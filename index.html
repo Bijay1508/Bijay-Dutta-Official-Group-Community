@@ -244,3 +244,47 @@ window.loginUser = function(){
       });
   }
 </script>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bijay Community</title>
+</head>
+<body>
+
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDe8CddVYhOj_zACkTqR6NFLUppQ8a-G18",
+            authDomain: "bijay-community-52464.firebaseapp.com",
+            projectId: "bijay-community-52464",
+            storageBucket: "bijay-community-52464.firebasestorage.app",
+            messagingSenderId: "750242297226",
+            appId: "1:750242297226:web:057fc119b35694b2e64473"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.login = function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                alert("Login Successful!");
+                window.location.href = "dashboard.html"; 
+            })
+            .catch((error) => {
+                alert("Error: " + error.message);
+            });
+        }
+    </script>
+
+</body>
+</html>
