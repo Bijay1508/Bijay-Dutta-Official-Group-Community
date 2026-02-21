@@ -65,3 +65,90 @@ button{background:#0b5ed7;color:white;border:none;padding:10px 20px;border-radiu
 <p>© 2026 Bijay Dutta Official Group Community</p>
 </footer></body>
   </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bijay Community</title>
+  <style>
+    body {font-family: Arial; text-align:center;}
+    input,button {padding:8px;margin:5px;}
+    #news {border:1px solid gray; padding:10px; margin:10px;}
+  </style>
+</head>
+
+<body>
+
+<h1>Bijay Community Website</h1>
+
+<h3>Login</h3>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+
+<h3>Owner Announcement</h3>
+<textarea id="announce" placeholder="Write announcement"></textarea>
+<br>
+<button onclick="postAnnouncement()">Post Announcement</button>
+
+<h3>Local News</h3>
+<textarea id="newsText" placeholder="Write news"></textarea>
+<br>
+<button onclick="postNews()">Publish News</button>
+
+<div id="news"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDe8CddVYhOj_zACkTqR6NFLUppQ8a-G18",
+  authDomain: "bijay-community-52464.firebaseapp.com",
+  projectId: "bijay-community-52464",
+  storageBucket: "bijay-community-52464.firebasestorage.app",
+  messagingSenderId: "750242297226",
+  appId: "1:750242297226:web:057fc119b35694b2e64473"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
+
+let ownerEmail = "yourgmail@gmail.com";
+
+window.login = function(){
+  let email=document.getElementById("email").value;
+  let pass=document.getElementById("pass").value;
+  signInWithEmailAndPassword(auth,email,pass)
+  .then(()=>alert("Login success"))
+  .catch(()=>alert("Login failed"));
+}
+
+window.postAnnouncement = async function(){
+  let text=document.getElementById("announce").value;
+  if(auth.currentUser.email!==ownerEmail){
+    alert("Only owner can post!");
+    return;
+  }
+  await addDoc(collection(db,"announcement"),{text});
+  alert("Announcement Posted");
+}
+
+window.postNews = async function(){
+  let text=document.getElementById("newsText").value;
+  await addDoc(collection(db,"news"),{text});
+  alert("News Posted");
+}
+
+async function loadNews(){
+  let querySnapshot = await getDocs(collection(db,"news"));
+  querySnapshot.forEach(doc=>{
+    document.getElementById("news").innerHTML+= "<p>"+doc.data().text+"</p>";
+  });
+}
+loadNews();
+
+</script>
+</body>
+</html>
