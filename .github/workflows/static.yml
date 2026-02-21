@@ -1,0 +1,138 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bijay Dutta Official Community</title>
+<style>
+body{font-family:sans-serif;background:#f5f5f5;text-align:center}
+.box{background:white;padding:20px;margin:10px;border-radius:10px}
+button{padding:8px 15px;margin:5px}
+</style>
+</head>
+
+<body>
+
+<h2>Bijay Dutta Official Group Community</h2>
+
+<div class="box">
+<h3>Login</h3>
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+<button onclick="loginUser()">Login</button>
+<p id="status"></p>
+</div>
+
+<div class="box">
+<h3>Submit News</h3>
+<input id="newsTitle" placeholder="News Title"><br><br>
+<textarea id="newsText" placeholder="Write News"></textarea><br><br>
+<button onclick="submitNews()">Submit</button>
+</div>
+
+<div class="box">
+<h3>Owner Panel</h3>
+<button onclick="approveNews()">Approve Pending News</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+ apiKey: "YOUR KEY",
+ authDomain: "YOUR DOMAIN",
+ projectId: "YOUR ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const OWNER_EMAIL = "bijaydutta112@gmail.com";
+let currentUser="";
+const OWNER_EMAIL_PASWORD = Bijay@112
+window.loginUser = function(){
+ let email=document.getElementById("email").value;
+ let pass=document.getElementById("password").value;
+
+ signInWithEmailAndPassword(auth,email,pass)
+ .then(()=>{
+  currentUser=email;
+  document.getElementById("status").innerText="Login Success";
+ })
+ .catch(e=>{
+  document.getElementById("status").innerText="Login Failed";
+ });
+}
+
+window.submitNews = async function(){
+ if(!currentUser){
+   alert("Login first");
+   return;
+ }
+
+ await addDoc(collection(db,"pending_news"),{
+  title:document.getElementById("newsTitle").value,
+  text:document.getElementById("newsText").value,
+  by:currentUser
+ });
+
+ alert("News sent for approval");
+}
+
+window.approveNews = async function(){
+ if(currentUser!==OWNER_EMAIL){
+   alert("Only Owner Can Approve");
+   return;
+ }
+
+ const snap=await getDocs(collection(db,"pending_news"));
+ alert("Pending News Count: "+snap.size);
+}
+</script>
+
+</body>
+</html>
